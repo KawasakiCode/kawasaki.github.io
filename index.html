@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kawasaki — ML Engineer in Training</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #0a0a0f;
+      --bg2:       #0f0f17;
+      --bg3:       #141420;
+      --border:    #1e1e2e;
+      --muted:     #3a3a52;
+      --text-dim:  #6b7280;
+      --text:      #9aa0ac;
+      --text-hi:   #c9cfd8;
+      --accent:    #8892a4;
+      --accent-hi: #aab4c8;
+      --green:     #4ade80;
+      --red:       #f87171;
+      --yellow:    #fbbf24;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    #wave-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    nav .inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 13px;
+      color: var(--accent-hi);
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent-hi); }
+
+    section {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section:last-of-type { border-bottom: none; }
+
+    /* HERO */
+    #hero {
+      padding: 140px 0 80px;
+      position: relative;
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.1s;
+    }
+
+    .hero-name {
+      font-size: clamp(42px, 8vw, 72px);
+      font-weight: 600;
+      color: var(--text-hi);
+      letter-spacing: -1px;
+      line-height: 1.05;
+      margin-bottom: 16px;
+      display: inline-block;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.2s, float 5s ease-in-out infinite 1s;
+    }
+
+    .hero-name span { color: var(--accent); }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text-dim);
+      max-width: 520px;
+      margin-bottom: 28px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.3s;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.4s;
+    }
+
+    .hero-actions {
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.55s;
+    }
+
+    .btn-resume {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent-hi);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s, box-shadow 0.3s;
+    }
+
+    .btn-resume::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 0;
+    }
+
+    .btn-resume:hover::before  { transform: translateX(0); }
+    .btn-resume:hover          { color: var(--bg); box-shadow: 0 0 24px rgba(136,146,164,0.25); }
+    .btn-resume > *            { position: relative; z-index: 1; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--text);
+      border-radius: 2px;
+    }
+
+    .badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-green  { background: var(--green);  box-shadow: 0 0 6px var(--green); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-blue   { background: #60a5fa; }
+    .dot-red    { background: var(--red); }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .about-cell {
+      background: var(--bg);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: background 0.2s;
+    }
+
+    .about-cell:hover { background: var(--bg2); }
+
+    .cell-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .cell-value {
+      font-size: 14px;
+      color: var(--text-hi);
+      font-weight: 500;
+    }
+
+    /* STACK */
+    .tech-category { margin-bottom: 28px; }
+
+    .tech-category-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .tech-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .pill {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      border-radius: 2px;
+      transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
+      cursor: default;
+    }
+
+    .pill:hover {
+      border-color: var(--accent);
+      color: var(--accent-hi);
+      background: var(--bg3);
+      transform: translateY(-2px);
+    }
+
+    /* EXPERIENCE */
+    .exp-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 24px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .exp-item:last-child { border-bottom: none; }
+
+    .exp-date {
+      font-size: 11px;
+      color: var(--text-dim);
+      padding-top: 2px;
+    }
+
+    .exp-title {
+      font-size: 14px;
+      color: var(--text-hi);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .exp-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Sans', sans-serif;
+      line-height: 1.6;
+    }
+
+    /* PROJECTS */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .project-card {
+      background: var(--bg);
+      padding: 24px;
+      text-decoration: none;
+      display: block;
+      transition: background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px; height: 0;
+      background: var(--accent);
+      transition: height 0.3s ease;
+    }
+
+    .project-card:hover { background: var(--bg2); }
+    .project-card:hover::before { height: 100%; }
+
+    .project-name {
+      font-size: 13px;
+      color: var(--text-hi);
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .project-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Sans', sans-serif;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .project-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border: 1px solid var(--muted);
+      color: var(--text-dim);
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .project-arrow {
+      position: absolute;
+      top: 20px; right: 20px;
+      font-size: 16px;
+      color: var(--muted);
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .project-card:hover .project-arrow {
+      color: var(--accent-hi);
+      transform: translate(2px, -2px);
+    }
+
+    /* GRAPH */
+    .graph-wrap {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 4px;
+      overflow: hidden;
+    }
+
+    .graph-wrap img { width: 100%; display: block; }
+
+    /* SOCIALS */
+    .socials { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
+    }
+
+    .social-link:hover {
+      border-color: var(--accent);
+      color: var(--accent-hi);
+      background: var(--bg3);
+      transform: translateY(-2px);
+    }
+
+    .social-icon { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.85em;
+      background: var(--accent);
+      margin-left: 3px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .about-grid    { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .exp-item      { grid-template-columns: 1fr; gap: 4px; }
+      .nav-links     { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="wave-canvas"></canvas>
+
+<nav>
+  <div class="inner">
+    <span class="nav-logo">KawasakiCode</span>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#activity">Activity</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="container">
+    <p class="hero-tag">// portfolio</p>
+    <h1 class="hero-name">Pantelis<br/><span>Remvos</span><span class="cursor"></span></h1>
+    <p class="hero-sub">CS student building Android apps and experimenting with machine learning. Based in Thessaloniki, Greece.</p>
+    <div class="hero-badges">
+      <span class="badge"><span class="dot dot-green"></span>Looking for a job</span>
+      <span class="badge"><span class="dot dot-yellow"></span>Age: <span id="age-display">—</span></span>
+      <span class="badge"><span class="dot dot-blue"></span>Thessaloniki, Greece</span>
+      <span class="badge"><span class="dot dot-red"></span>3rd Year Undergraduate</span>
+    </div>
+    <div class="hero-actions">
+      <a class="btn-resume" href="resume.pdf" download="Pantelis_Remvos_Resume.pdf">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+        </svg>
+        <span>Download Resume</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <p class="section-label reveal">About</p>
+    <div class="about-grid reveal">
+      <div class="about-cell">
+        <span class="cell-label">Full Name</span>
+        <span class="cell-value">Pantelis Remvos</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Alias</span>
+        <span class="cell-value">Kawasaki</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Date of Birth</span>
+        <span class="cell-value">13 October 2005</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Age</span>
+        <span class="cell-value" id="age-cell">—</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Location</span>
+        <span class="cell-value">Thessaloniki, Greece</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Languages</span>
+        <span class="cell-value">Greek, English</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">University</span>
+        <span class="cell-value">University of Macedonia</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Year</span>
+        <span class="cell-value">3rd Year Undergraduate</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Focus</span>
+        <span class="cell-value">Machine Learning & Neural Networks</span>
+      </div>
+      <div class="about-cell">
+        <span class="cell-label">Status</span>
+        <span class="cell-value" style="color: var(--green)">Looking for a job</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="container">
+    <p class="section-label reveal">Tech Stack</p>
+
+    <div class="tech-category reveal">
+      <p class="tech-category-title">AI / Machine Learning</p>
+      <div class="tech-pills">
+        <span class="pill">Python</span>
+        <span class="pill">PyTorch</span>
+        <span class="pill">TensorFlow</span>
+      </div>
+    </div>
+
+    <div class="tech-category reveal">
+      <p class="tech-category-title">Mobile & Frontend</p>
+      <div class="tech-pills">
+        <span class="pill">Flutter</span>
+        <span class="pill">Dart</span>
+        <span class="pill">HTML</span>
+        <span class="pill">CSS</span>
+        <span class="pill">JavaScript</span>
+        <span class="pill">PHP</span>
+      </div>
+    </div>
+
+    <div class="tech-category reveal">
+      <p class="tech-category-title">Systems & Backend</p>
+      <div class="tech-pills">
+        <span class="pill">Java</span>
+        <span class="pill">C</span>
+        <span class="pill">FastAPI</span>
+      </div>
+    </div>
+
+    <div class="tech-category reveal">
+      <p class="tech-category-title">Tools & IDEs</p>
+      <div class="tech-pills">
+        <span class="pill">VS Code</span>
+        <span class="pill">Android Studio</span>
+        <span class="pill">PyCharm</span>
+        <span class="pill">Visual Studio</span>
+        <span class="pill">Cursor</span>
+        <span class="pill">Git</span>
+        <span class="pill">GitHub</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="container">
+    <p class="section-label reveal">Experience</p>
+
+    <div class="exp-item reveal">
+      <div class="exp-date">2023 — present<br/><span style="color:var(--muted)">~2 years</span></div>
+      <div>
+        <p class="exp-title">Flutter / Android Development</p>
+        <p class="exp-desc">Building Android applications with Flutter and Dart. Developed multiple projects from scratch covering UI design, state management, and API integration. All projects are self-initiated and built independently.</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-date">2024 — present</div>
+      <div>
+        <p class="exp-title">Machine Learning & AI Research</p>
+        <p class="exp-desc">Experimenting with neural network architectures using PyTorch and TensorFlow. Building and training models from scratch as part of self-directed learning toward a career in ML engineering.</p>
+      </div>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-date">2024 — present</div>
+      <div>
+        <p class="exp-title">Python Backend — FastAPI</p>
+        <p class="exp-desc">Built REST API backends using FastAPI. Experience with routing, request handling, and connecting backends to frontend applications.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="container">
+    <p class="section-label reveal">Projects</p>
+    <div class="projects-grid reveal">
+
+      <a class="project-card" href="https://github.com/KawasakiCode/FoitiFinder" target="_blank">
+        <span class="project-arrow">↗</span>
+        <p class="project-name">FoitiFinder</p>
+        <p class="project-desc">A mobile application built with Flutter and Dart, developed from scratch with custom UI and state management.</p>
+        <div class="project-tags">
+          <span class="project-tag">Flutter</span>
+          <span class="project-tag">Dart</span>
+          <span class="project-tag">Android</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/KawasakiCode/Python-media-player" target="_blank">
+        <span class="project-arrow">↗</span>
+        <p class="project-name">Python Media Player</p>
+        <p class="project-desc">Custom AI model built and trained from scratch using PyTorch. Experiments with network architecture and training pipelines.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">PyTorch</span>
+          <span class="project-tag">ML</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/KawasakiCode/ReminderApp" target="_blank">
+        <span class="project-arrow">↗</span>
+        <p class="project-name">Reminder App</p>
+        <p class="project-desc">REST API backend built with FastAPI and Python. Includes routing, data validation, and integration with frontend clients.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">FastAPI</span>
+          <span class="project-tag">REST</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/KawasakiCode" target="_blank">
+        <span class="project-arrow">↗</span>
+        <p class="project-name">View All on GitHub</p>
+        <p class="project-desc">All projects are open source and built from scratch. Browse the full list of repositories on GitHub.</p>
+        <div class="project-tags">
+          <span class="project-tag">github.com/KawasakiCode</span>
+        </div>
+      </a>
+
+    </div>
+    <p style="font-size:11px; color:var(--muted); margin-top:12px;">
+      // Replace project cards with your actual repo names and descriptions.
+    </p>
+  </div>
+</section>
+
+<section id="activity">
+  <div class="container">
+    <p class="section-label reveal">GitHub Activity</p>
+    <div class="graph-wrap reveal">
+      <img
+        src="https://github-readme-activity-graph.vercel.app/graph?username=KawasakiCode&bg_color=0a0a0f&color=8892a4&line=8892a4&point=aab4c8&area=true&area_color=8892a4&hide_border=true"
+        alt="GitHub contribution graph"
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <p class="section-label reveal">Contact</p>
+    <div class="socials reveal">
+
+      <a class="social-link" href="https://github.com/KawasakiCode" target="_blank">
+        <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        github.com/KawasakiCode
+      </a>
+
+      <a class="social-link" href="https://www.linkedin.com/in/pantelis-remvos-659a96393/" target="_blank">
+        <svg class="social-icon" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        Pantelis Remvos
+      </a>
+
+      <a class="social-link" href="mailto:remvosp@gmail.com">
+        <svg class="social-icon" viewBox="0 0 24 24"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
+        remvosp@gmail.com
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Pantelis Remvos &mdash; KawasakiCode &mdash; Thessaloniki, Greece</p>
+  </div>
+</footer>
+
+<script>
+  // DYNAMIC AGE
+  function calcAge() {
+    const dob = new Date(2005, 9, 13);
+    const now = new Date();
+    let age = now.getFullYear() - dob.getFullYear();
+    if (now.getMonth() < 9 || (now.getMonth() === 9 && now.getDate() < 13)) age--;
+    return age;
+  }
+  const age = calcAge();
+  document.getElementById('age-display').textContent = age;
+  document.getElementById('age-cell').textContent = age + ' years old';
+
+  // ANIMATED WAVE BACKGROUND
+  const canvas = document.getElementById('wave-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const waves = [
+    { amp: 28,  period: 0.0028, speed: 0.38,  offset: 0.0,  yFrac: 0.12, opacity: 0.055 },
+    { amp: 42,  period: 0.0021, speed: 0.27,  offset: 1.1,  yFrac: 0.26, opacity: 0.045 },
+    { amp: 55,  period: 0.0016, speed: 0.20,  offset: 2.2,  yFrac: 0.40, opacity: 0.038 },
+    { amp: 38,  period: 0.0033, speed: 0.32,  offset: 0.7,  yFrac: 0.54, opacity: 0.048 },
+    { amp: 62,  period: 0.0012, speed: 0.16,  offset: 3.5,  yFrac: 0.68, opacity: 0.030 },
+    { amp: 30,  period: 0.0025, speed: 0.44,  offset: 1.8,  yFrac: 0.82, opacity: 0.058 },
+    { amp: 48,  period: 0.0018, speed: 0.22,  offset: 4.2,  yFrac: 0.93, opacity: 0.035 },
+  ];
+
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    waves.forEach(w => {
+      ctx.beginPath();
+      const baseY = canvas.height * w.yFrac;
+
+      for (let x = 0; x <= canvas.width + 4; x += 3) {
+        const y = baseY
+          + Math.sin(x * w.period + t * w.speed + w.offset) * w.amp
+          + Math.sin(x * w.period * 0.47 + t * w.speed * 0.63 + w.offset + 2.1) * w.amp * 0.35;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+
+      ctx.strokeStyle = `rgba(136,146,164,${w.opacity})`;
+      ctx.lineWidth   = 1.3;
+      ctx.stroke();
+    });
+
+    t += 0.016;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+
+  // SCROLL REVEAL
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
