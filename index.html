@@ -19,8 +19,6 @@
     --accent:    #737373; /* Neutral gray accent */
     --accent-hi: #e5e5e5;
     --green:     #4ade80;
-    --red:       #f87171;
-    --yellow:    #fbbf24;
   }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -223,9 +221,9 @@
     }
 
     .dot-green  { background: var(--green);  box-shadow: 0 0 6px var(--green); }
-    .dot-yellow { background: var(--yellow); }
-    .dot-blue   { background: #60a5fa; }
-    .dot-red    { background: var(--red); }
+    .dot-yellow { background: var(--text); }
+    .dot-blue   { background: var(--text)}
+    .dot-red    { background: var(--text); }
 
     .section-label {
       font-size: 10px;
@@ -537,7 +535,6 @@
 
 <section id="hero">
   <div class="container">
-    <p class="hero-tag">// portfolio</p>
     <h1 class="hero-name">Pantelis<br/><span>Remvos</span></h1>
     <p class="hero-sub">CS student building Android apps and experimenting with machine learning. Based in Thessaloniki, Greece.</p>
     <div class="hero-badges">
@@ -689,9 +686,9 @@
     <p class="section-label reveal">Projects</p>
     <div class="projects-grid reveal">
 
-      <a class="project-card" href="https://github.com/KawasakiCode" target="_blank">
+      <a class="project-card" href="https://github.com/KawasakiCode/FoitiFinder" target="_blank">
         <span class="project-arrow">↗</span>
-        <p class="project-name">Android App — Flutter</p>
+        <p class="project-name">FoitiFInder</p>
         <p class="project-desc">A mobile application built with Flutter and Dart, developed from scratch with custom UI and state management.</p>
         <div class="project-tags">
           <span class="project-tag">Flutter</span>
@@ -700,25 +697,24 @@
         </div>
       </a>
 
-      <a class="project-card" href="https://github.com/KawasakiCode" target="_blank">
+      <a class="project-card" href="https://github.com/KawasakiCode/Python-media-player" target="_blank">
         <span class="project-arrow">↗</span>
-        <p class="project-name">Neural Network Model</p>
-        <p class="project-desc">Custom AI model built and trained from scratch using PyTorch. Experiments with network architecture and training pipelines.</p>
+        <p class="project-name">Media Player</p>
+        <p class="project-desc">My first project. A python music player for downloaded music</p>
         <div class="project-tags">
           <span class="project-tag">Python</span>
-          <span class="project-tag">PyTorch</span>
-          <span class="project-tag">ML</span>
+          <span class="project-tag">Python Qt</span>
         </div>
       </a>
 
-      <a class="project-card" href="https://github.com/KawasakiCode" target="_blank">
+      <a class="project-card" href="https://github.com/KawasakiCode/ReminderApp" target="_blank">
         <span class="project-arrow">↗</span>
-        <p class="project-name">FastAPI Backend</p>
-        <p class="project-desc">REST API backend built with FastAPI and Python. Includes routing, data validation, and integration with frontend clients.</p>
+        <p class="project-name">ReminderApp</p>
+        <p class="project-desc">My new project, currently in the making</p>
         <div class="project-tags">
-          <span class="project-tag">Python</span>
-          <span class="project-tag">FastAPI</span>
-          <span class="project-tag">REST</span>
+          <span class="project-tag">Flutter</span>
+          <span class="project-tag">Dart</span>
+          <span class="project-tag">Android</span>
         </div>
       </a>
 
